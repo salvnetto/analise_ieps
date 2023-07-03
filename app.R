@@ -5,6 +5,13 @@ library(readxl)
 library(geobr)
 library(leaflet)
 
+#Cobertura e Cobertura Vacinal - Salvador
+#Despesas/Gastos/Porcentagem de part. - Todos
+#Infraestrutura(Numeros) - Marcelo
+#Demografia(Natalidade/Mortalidade) - Bruno
+
+
+
 # Datasets
 df_br = read_xlsx('data/brasil.xlsx')
 df_macro = read_xlsx('data/macroregiao.xlsx')
