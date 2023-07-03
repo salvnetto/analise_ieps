@@ -19,8 +19,8 @@ mapa = read_country(year= 2020)
 # Interface Gráfica
 ui <- fluidPage(
   navbarPage("IEPS DATA", # Nome do Aplicativo Shiny
-             navbarMenu("Nome do menu", # Nome do menu
-                        tabPanel("Coberturas", fluid= T, # Nome do item
+             navbarMenu("Coberturas", # Nome do menu
+                        tabPanel("Cobertura1", fluid= T, # Nome do item
                                  titlePanel("Porcentagem de Coberturas por Estados"),
                                  sidebarLayout(
                                    sidebarPanel(
@@ -35,17 +35,27 @@ ui <- fluidPage(
                                                 choices = c("Atenção Básica" = 'cob_ab',
                                                             "Agentes Comunitários de Saúde" = "cob_acs",
                                                             "Estratégia de Saúde da Família"	 = "cob_esf",   
-                                                            "Planos de Saúde"	 = "cob_priv",    
-                                                            "Vacinal de BCG"	 = "cob_vac_bcg",   
-                                                            'Vacinal de Hepatite A'	 = "cob_vac_hepa",	
-                                                            "Vacinal de Hepatite B em crianças até 30 dias" = "cob_vac_hepb",	
-                                                            'Vacinal de Meningococo C' = "cob_vac_menin"),
-                                                selected = "Porcentagem de Cobertura da Atenção Básica")),
+                                                            "Planos de Saúde"	 = "cob_priv"),
+                                                selected = "Atenção Básica")),
                                    mainPanel(
                                      leafletOutput("mapa_coberturas") #Nome do gráfico
                                      ))),
-                        tabPanel("Teste") #  Nome do item
-                        )))
+                        tabPanel("Vacinal", fluid= T,
+                                 titlePanel("ESCREVER"),
+                                 sidebarLayout(
+                                   sidebarPanel(),
+                                   mainPanel(
+                                     plotOutput("tipos_linha")
+                                     ))),
+                        ),
+             navbarMenu("Despesas",
+                        tabPanel("Despesas"),
+                        tabPanel("Gastos"),
+                        tabPanel("Participacao")),
+             navbarMenu("Infraestrutura",
+                        tabPanel("Teste1"),
+                        tabPanel("Teste2")),
+             tabPanel("Demografia")))
   
 # Funções
 server <- function(input, output) {
@@ -55,8 +65,6 @@ server <- function(input, output) {
     df_mapa = inner_join(mapa, df_uf, c('abbrev_state' = 'sigla_uf')) %>% 
       filter(ano == input$Ano)
     # Criação do Gráfico
-    #ggplot(df_mapa) +
-    #  geom_sf(aes(fill = .data[[input$Variavel]]))
     pal <-  colorBin("Blues", domain = df_mapa[[input$Variavel]], bins = 5)
     leaflet(data = df_mapa) %>%
       addPolygons(fillColor = ~ pal(df_mapa[[input$Variavel]]), 
@@ -67,10 +75,9 @@ server <- function(input, output) {
       addLegend("bottomright", pal= pal, values = df_mapa[[input$Variavel]], title = "Porcentagem da Cobertura", opacity = 1)
   })
   
-  # Outro Grafico
+  # Grafico
   # Outro
   # Outro
 }
 
 shinyApp(ui = ui, server = server)
-#'''
