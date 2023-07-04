@@ -11,7 +11,6 @@ library(leaflet)
 #Demografia(Natalidade/Mortalidade) - Bruno
 
 
-
 # Datasets
 df_br = read_xlsx('data/brasil.xlsx')
 df_macro = read_xlsx('data/macroregiao.xlsx')
@@ -27,17 +26,17 @@ mapa = read_country(year= 2020)
 ui <- fluidPage(
   navbarPage("IEPS DATA", # Nome do Aplicativo Shiny
              navbarMenu("Coberturas", # Nome do menu
-                        tabPanel("Cobertura1", fluid= T, # Nome do item
-                                 titlePanel("Porcentagem de Coberturas por Estados"),
+                        tabPanel("Assistêncial", fluid= T, # Nome do item
+                                 titlePanel("Porcentagem de Coberturas Assistênciais por Estados"),
                                  sidebarLayout(
                                    sidebarPanel(
                                     # Selecionar o Ano
-                                    selectInput(inputId = 'Ano',
+                                    selectInput(inputId = 'Ano1',
                                                 label= 'Selecione o Ano:',
                                                 choices= levels(factor(df_uf$ano)),
                                                 selected= '2021'),
                                     # Selecionar a variável
-                                    selectInput(inputId = "Variavel",
+                                    selectInput(inputId = "Variavel1",
                                                 label = "Selecione a Variável:",
                                                 choices = c("Atenção Básica" = 'cob_ab',
                                                             "Agentes Comunitários de Saúde" = "cob_acs",
@@ -48,13 +47,30 @@ ui <- fluidPage(
                                      leafletOutput("mapa_coberturas") #Nome do gráfico
                                      ))),
                         tabPanel("Vacinal", fluid= T,
-                                 titlePanel("ESCREVER"),
+                                 titlePanel("Porcentagem de Coberturas Vacinais por Estados"),
                                  sidebarLayout(
-                                   sidebarPanel(),
+                                   sidebarPanel(
+                                     #Seleciona o Ano
+                                     selectInput(inputId = 'Ano2',
+                                                 label= 'Selecione o Ano:',
+                                                 choices= levels(factor(df_uf$ano)),
+                                                 selected= '2021'),
+                                     # Selecionar a variável
+                                     selectInput(inputId = "Variavel2",
+                                                 label = "Selecione a Vacina:",
+                                                 choices = c("BCG" = "cob_vac_bcg",
+                                                             "Hepatite A"	= "cob_vac_hepa",
+                                                             "Hepatite B em crianças até 30 dias" = "cob_vac_hepb",
+                                                             "Meningococo C" = "cob_vac_menin",
+                                                             "Pentavalente" = "cob_vac_penta",
+                                                             "Pneumocócica" = "cob_vac_pneumo",
+                                                             "Poliomielite" = "cob_vac_polio",
+                                                             "Rotavírus Humano" = "cob_vac_rota",
+                                                             "Tríplice Viral (1ª Dose)" = "cob_vac_tvd1"),
+                                                 selected = "BCG")),
                                    mainPanel(
-                                     plotOutput("tipos_linha")
-                                     ))),
-                        ),
+                                     leafletOutput("mapa_vacinal")
+                                     )))),
              navbarMenu("Despesas",
                         tabPanel("Despesas"),
                         tabPanel("Gastos"),
@@ -68,21 +84,34 @@ ui <- fluidPage(
 server <- function(input, output) {
   # Grafico Coberturas
   output$mapa_coberturas <- renderLeaflet({
-    # Filtragem dos dados
     df_mapa = inner_join(mapa, df_uf, c('abbrev_state' = 'sigla_uf')) %>% 
-      filter(ano == input$Ano)
-    # Criação do Gráfico
-    pal <-  colorBin("Blues", domain = df_mapa[[input$Variavel]], bins = 5)
+      filter(ano == input$Ano1)
+
+    pal <-  colorBin("Blues", domain = df_mapa[[input$Variavel1]], bins = 5)
     leaflet(data = df_mapa) %>%
-      addPolygons(fillColor = ~ pal(df_mapa[[input$Variavel]]), 
+      addPolygons(fillColor = ~ pal(df_mapa[[input$Variavel1]]), 
                   fillOpacity = 0.9, 
                   color = "white", 
                   weight = 1,
-                  popup = paste("Cobertura: ", round(df_mapa[[input$Variavel]], 2), "%")) %>% 
-      addLegend("bottomright", pal= pal, values = df_mapa[[input$Variavel]], title = "Porcentagem da Cobertura", opacity = 1)
+                  popup = paste("Cobertura: ", round(df_mapa[[input$Variavel1]], 2), "%")) %>% 
+      addLegend("bottomright", pal= pal, values = df_mapa[[input$Variavel1]], title = "Porcentagem da Cobertura", opacity = 1)
   })
   
-  # Grafico
+  # Grafico Vacinal
+  output$mapa_vacinal <- renderLeaflet({
+    df_mapa = inner_join(mapa, df_uf, c('abbrev_state' = 'sigla_uf')) %>% 
+      filter(ano == input$Ano2)
+    
+    pal <-  colorBin("Blues", domain = df_mapa[[input$Variavel2]], bins = 5)
+    leaflet(data = df_mapa) %>%
+      addPolygons(fillColor = ~ pal(df_mapa[[input$Variavel2]]), 
+                  fillOpacity = 0.9, 
+                  color = "white", 
+                  weight = 1,
+                  popup = paste("Cobertura: ", round(df_mapa[[input$Variavel2]], 2), "%")) %>% 
+      addLegend("bottomright", pal= pal, values = df_mapa[[input$Variavel2]], title = "Porcentagem da Cobertura", opacity = 1)
+  })
+  
   # Outro
   # Outro
 }
