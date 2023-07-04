@@ -78,7 +78,56 @@ ui <- fluidPage(
              navbarMenu("Infraestrutura",
                         tabPanel("Teste1"),
                         tabPanel("Teste2")),
-             tabPanel("Demografia")))
+             navbarMenu('Demografia',
+                        tabPanel(
+                          "Mortalidade",
+                          fluid = FALSE,
+                          titlePanel("Graficos sobre mortalidade"),
+                          sidebarLayout(
+                            sidebarPanel(
+                              selectInput(
+                                inputId = 'variavel_mor',
+                                label = 'Selecione a variável',
+                                choices = c(
+                                  'Mortalidade Bruta por Causas Mal Definidas' = 'pct_mort_maldef',
+                                  'Mortalidade Bruta' = 'tx_mort',
+                                  'Mortalidade Bruta por Condições Sensíveis a Atenção Primária' = 'tx_mort_csap',
+                                  'Mortalidade Bruta por Causas Evitáveis' = 'tx_mort_evit',
+                                  'Mortalidade Infantil' = 'tx_mort_inf_ibge'
+                                )
+                              )
+                            ),
+                            mainPanel(
+                              plotOutput("grafico_mor")
+                            )
+                          )
+                        ),
+                        tabPanel(
+                          "Hospitalares",
+                          fluid = FALSE,
+                          titlePanel("Graficos sobre dados Hospitalares"),
+                          sidebarLayout(
+                            sidebarPanel(
+                              selectInput(
+                                inputId = 'variavel_hospital',
+                                label = 'Selecione a variável',
+                                choices = c(
+                                  'Número de Médicos' = 'n_med',
+                                  'Número de Enfermeiros' = 'n_enf',
+                                  'Número de Hospitalizações Totais' = 'n_hosp',
+                                  'Número de Leitos Não-SUS' = 'n_leito_nsus',
+                                  'Número de Leitos SUS' = 'n_leito_sus',
+                                  'Número de Leitos de UTI Não-SUS' = 'n_leitouti_nsus',
+                                  'Número de Leitos de UTI SUS' = 'n_leitouti_sus'
+                                )
+                              )
+                            ),
+                            mainPanel(
+                              plotOutput("grafico_hospital")
+                            )
+                          )
+                        )
+             )))
   
 # Funções
 server <- function(input, output) {
@@ -112,7 +161,19 @@ server <- function(input, output) {
       addLegend("bottomright", pal= pal, values = df_mapa[[input$Variavel2]], title = "Porcentagem da Cobertura", opacity = 1)
   })
   
-  # Outro
+  # Grafico Mortalidade
+  output$grafico_mor <- renderPlot({
+    ggplot(data = df_br, aes(x = ano, y = !!sym(input$variavel_mor))) +
+      geom_line() + geom_point()
+  })
+  
+  # Gráfico Hospitalares
+  output$grafico_hospital <- renderPlot({
+    ggplot(data = df_br, aes(x = ano, y = !!sym(input$variavel_hospital))) +
+      geom_line() + geom_point()
+  })
+  
+
   # Outro
 }
 
