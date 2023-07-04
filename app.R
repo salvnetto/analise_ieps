@@ -126,6 +126,28 @@ ui <- fluidPage(
                               plotOutput("grafico_hospital")
                             )
                           )
+                        ),
+                        tabPanel(
+                          "Natalidade",
+                          fluid = FALSE,
+                          titlePanel("Graficos sobre natalidade"),
+                          sidebarLayout(
+                            sidebarPanel(
+                              selectInput(
+                                inputId = 'variavel_nat',
+                                label = 'Selecione a variável',
+                                choices = c(
+                                  'Porcentagem de Nascidos Vivos com 1 a 6 Consultas Pré-Natal' = 'pct_prenatal_1a6',
+                                  'Porcentagem de Nascidos Vivos com 7 ou Mais Consultas Pré-Natal' = 'pct_prenatal_7m',
+                                  'Porcentagem de Nascidos Vivos com Pré-Natal Adequado' = 'pct_prenatal_adeq',
+                                  'Porcentagem de Nascidos Vivos com Nenhuma Consulta Pré-Natal' = 'pct_prenatal_zero'
+                                )
+                              )
+                            ),
+                            mainPanel(
+                              plotOutput("grafico_nat")
+                            )
+                          )
                         )
              )))
   
@@ -173,8 +195,12 @@ server <- function(input, output) {
       geom_line() + geom_point()
   })
   
-
-  # Outro
+  # Gráfico Natalidade
+  output$grafico_nat <- renderPlot({
+    ggplot(data = df_br, aes(x = ano, y = !!sym(input$variavel_nat))) +
+      geom_line() + geom_point()
+  })
+  
 }
 
 shinyApp(ui = ui, server = server)
