@@ -24,10 +24,47 @@ df_uf = read_xlsx('data/uf.xlsx')
 # Mapa do Brasil
 mapa = read_country(year= 2020)
 
+# Escolhas dos Slides
+labels_hops <- c(
+  'n_med' = 'Número de Médicos',
+  'n_enf' = 'Número de Enfermeiros',
+  'n_hosp' = 'Número de Hospitalizações Totais',
+  'n_leito_nsus' = 'Número de Leitos Não-SUS',
+  'n_leito_sus' = 'Número de Leitos SUS',
+  'n_leitouti_nsus' = 'Número de Leitos de UTI Não-SUS',
+  'n_leitouti_sus' = 'Número de Leitos de UTI SUS'
+)
+
+labels_mort <- c(
+  'pct_mort_maldef' = 'Mortalidade Bruta por Causas Mal Definidas',
+  'tx_mort' = 'Mortalidade Bruta',
+  'tx_mort_csap' = 'Mort. por Condições Sensíveis a Atenção Primária',
+  'tx_mort_evit' = 'Mortalidade Bruta por Causas Evitáveis',
+  'tx_mort_inf_ibge' = 'Mortalidade Infantil'
+)
+
+labels_nat <- c(
+  'pct_prenatal_1a6' = '1 a 6 Consultas Pré-Natal',
+  'pct_prenatal_7m' = '7 ou Mais Consultas Pré-Natal',
+  'pct_prenatal_adeq' = 'Pré-Natal Adequado',
+  'pct_prenatal_zero' = 'Nenhuma Consulta Pré-Natal'
+)
+
+
 
 # Interface Gráfica
 ui <- fluidPage(
   navbarPage("IEPS DATA", # Nome do Aplicativo Shiny
+             tabPanel("Introdução", fluid= T,
+                      titlePanel("Sobre o IEPS DATA"),
+                      mainPanel(
+                        div(
+                          style = "text-align: justify;",
+                          p("O IEPS Data é uma iniciativa do Instituto de Estudos para Políticas de Saúde (IEPS), uma organização sem fins lucrativos, independente e apartidária, cujo único objetivo é contribuir para o aprimoramento das políticas públicas do setor de saúde no Brasil. O IEPS defende a ideia de que toda a população brasileira deva ter acesso à saúde de qualidade e que o uso de recursos e a regulação do sistema de saúde sejam os mais efetivos possíveis. Acreditamos que a melhor maneira de alcançar o nosso propósito é através de políticas públicas baseadas em evidências, desenhadas, implementadas e monitoradas de maneira transparente.")
+                          ),
+                        div(
+                          class = "table-responsive",
+                          tableOutput("descricao_variaveis")))),
              navbarMenu("Coberturas", # Nome do menu
                         tabPanel("Assistêncial", fluid= T, # Nome do item
                                  titlePanel("Porcentagem de Coberturas Assistênciais por Estados"),
@@ -152,6 +189,14 @@ ui <- fluidPage(
   
 # Funções
 server <- function(input, output) {
+  # Descrição das variáveis
+  output$descricao_variaveis <- renderTable({
+    descricao <- data.frame(
+      Variavel = c("Variável 1", "Variável 2", "Variável 3"),  # Exemplo de nome das variáveis
+      Descricao = c("Descrição da Variável 1", "Descrição da Variável 2", "Descrição da Variável 3")  # Exemplo de descrição das variáveis
+    )
+    descricao
+  })
   # Grafico Coberturas
   output$mapa_coberturas <- renderLeaflet({
     df_mapa = inner_join(mapa, df_uf, c('abbrev_state' = 'sigla_uf')) %>% 
@@ -184,27 +229,33 @@ server <- function(input, output) {
   
   # Grafico Mortalidade
   output$grafico_mor <- renderPlotly({
+    y_mor <- labels_mort[input$variavel_mor]
     a = ggplot(data = df_br, aes(x = ano, y = !!sym(input$variavel_mor))) +
       geom_line(col= "#5499C7") + geom_point(col= "#1F618D") +
-      labs(x= "Anos")
+      labs(x= "Anos", y= y_mor) +
+      theme_minimal()
     
     ggplotly(a)
   })
   
   # Gráfico Hospitalares
   output$grafico_hospital <- renderPlotly({
+    y_hosp = labels_hops[input$variavel_hospital]
     b = ggplot(data = df_br, aes(x = ano, y = !!sym(input$variavel_hospital))) +
       geom_line(col= "#5499C7") + geom_point(col= "#1F618D") +
-      labs(x= "Anos")
+      labs(x= "Anos", y= y_hosp) +
+      theme_minimal()
     
     ggplotly(b)
   })
   
   # Gráfico Natalidade
   output$grafico_nat <- renderPlotly({
+    y_nat = labels_nat[input$variavel_nat]
     c = ggplot(data = df_br, aes(x = ano, y = !!sym(input$variavel_nat))) +
       geom_line(col= "#5499C7") + geom_point(col= "#1F618D") +
-      labs(x= "Anos")
+      labs(x= "Anos", y= y_nat) +
+      theme_minimal()
     
     ggplotly(c)
   })
