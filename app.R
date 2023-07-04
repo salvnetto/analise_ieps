@@ -4,6 +4,7 @@ library(tidyverse)
 library(readxl)
 library(geobr)
 library(leaflet)
+library(plotly)
 
 #Despesas/Gastos/Porcentagem de part. - Todos
 #desp_recp_saude_pc_uf	Despesa em Saúde Utilizando Recursos Próprios do Estado (por Hab., R$)
@@ -77,38 +78,10 @@ ui <- fluidPage(
                         tabPanel("Despesas"),
                         tabPanel("Gastos"),
                         tabPanel("Participacao")),
-             navbarMenu("Infraestrutura",
-                        tabPanel("Teste1"),
-                        tabPanel("Teste2")),
-             navbarMenu('Demografia',
-                        tabPanel(
-                          "Mortalidade",
-                          fluid = FALSE,
-                          titlePanel("Graficos sobre mortalidade"),
-                          sidebarLayout(
-                            sidebarPanel(
-                              selectInput(
-                                inputId = 'variavel_mor',
-                                label = 'Selecione a variável',
-                                choices = c(
-                                  'Mortalidade Bruta por Causas Mal Definidas' = 'pct_mort_maldef',
-                                  'Mortalidade Bruta' = 'tx_mort',
-                                  'Mortalidade Bruta por Condições Sensíveis a Atenção Primária' = 'tx_mort_csap',
-                                  'Mortalidade Bruta por Causas Evitáveis' = 'tx_mort_evit',
-                                  'Mortalidade Infantil' = 'tx_mort_inf_ibge'
-                                )
-                              )
-                            ),
-                            mainPanel(
-                              plotOutput("grafico_mor")
-                            )
-                          )
-                        ),
-                        tabPanel(
-                          "Hospitalares",
-                          fluid = FALSE,
-                          titlePanel("Graficos sobre dados Hospitalares"),
-                          sidebarLayout(
+             tabPanel("Infraestrutura",
+                      fluid = T,
+                      titlePanel("Graficos sobre dados Hospitalares"),
+                      sidebarLayout(
                             sidebarPanel(
                               selectInput(
                                 inputId = 'variavel_hospital',
@@ -125,13 +98,37 @@ ui <- fluidPage(
                               )
                             ),
                             mainPanel(
-                              plotOutput("grafico_hospital")
+                              plotlyOutput("grafico_hospital")
+                            )
+                          )
+                        ),
+             navbarMenu('Demografia',
+                        tabPanel(
+                          "Mortalidade",
+                          fluid = T,
+                          titlePanel("Graficos sobre mortalidade"),
+                          sidebarLayout(
+                            sidebarPanel(
+                              selectInput(
+                                inputId = 'variavel_mor',
+                                label = 'Selecione a variável',
+                                choices = c(
+                                  'Mortalidade Bruta por Causas Mal Definidas' = 'pct_mort_maldef',
+                                  'Mortalidade Bruta' = 'tx_mort',
+                                  'Mortalidade Bruta por Condições Sensíveis a Atenção Primária' = 'tx_mort_csap',
+                                  'Mortalidade Bruta por Causas Evitáveis' = 'tx_mort_evit',
+                                  'Mortalidade Infantil' = 'tx_mort_inf_ibge'
+                                )
+                              )
+                            ),
+                            mainPanel(
+                              plotlyOutput("grafico_mor")
                             )
                           )
                         ),
                         tabPanel(
                           "Natalidade",
-                          fluid = FALSE,
+                          fluid = T,
                           titlePanel("Graficos sobre natalidade"),
                           sidebarLayout(
                             sidebarPanel(
@@ -147,7 +144,7 @@ ui <- fluidPage(
                               )
                             ),
                             mainPanel(
-                              plotOutput("grafico_nat")
+                              plotlyOutput("grafico_nat")
                             )
                           )
                         )
@@ -186,21 +183,30 @@ server <- function(input, output) {
   })
   
   # Grafico Mortalidade
-  output$grafico_mor <- renderPlot({
-    ggplot(data = df_br, aes(x = ano, y = !!sym(input$variavel_mor))) +
-      geom_line() + geom_point()
+  output$grafico_mor <- renderPlotly({
+    a = ggplot(data = df_br, aes(x = ano, y = !!sym(input$variavel_mor))) +
+      geom_line(col= "#5499C7") + geom_point(col= "#1F618D") +
+      labs(x= "Anos")
+    
+    ggplotly(a)
   })
   
   # Gráfico Hospitalares
-  output$grafico_hospital <- renderPlot({
-    ggplot(data = df_br, aes(x = ano, y = !!sym(input$variavel_hospital))) +
-      geom_line() + geom_point()
+  output$grafico_hospital <- renderPlotly({
+    b = ggplot(data = df_br, aes(x = ano, y = !!sym(input$variavel_hospital))) +
+      geom_line(col= "#5499C7") + geom_point(col= "#1F618D") +
+      labs(x= "Anos")
+    
+    ggplotly(b)
   })
   
   # Gráfico Natalidade
-  output$grafico_nat <- renderPlot({
-    ggplot(data = df_br, aes(x = ano, y = !!sym(input$variavel_nat))) +
-      geom_line() + geom_point()
+  output$grafico_nat <- renderPlotly({
+    c = ggplot(data = df_br, aes(x = ano, y = !!sym(input$variavel_nat))) +
+      geom_line(col= "#5499C7") + geom_point(col= "#1F618D") +
+      labs(x= "Anos")
+    
+    ggplotly(c)
   })
   
 }
