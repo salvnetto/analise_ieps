@@ -5,8 +5,10 @@ library(readxl)
 library(geobr)
 library(leaflet)
 
-#Cobertura e Cobertura Vacinal - Salvador
 #Despesas/Gastos/Porcentagem de part. - Todos
+#desp_recp_saude_pc_uf	Despesa em Saúde Utilizando Recursos Próprios do Estado (por Hab., R$)
+#
+
 #Infraestrutura(Numeros) - Marcelo
 #Demografia(Natalidade/Mortalidade) - Bruno
 
