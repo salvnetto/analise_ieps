@@ -5,6 +5,7 @@ library(readxl)
 library(geobr)
 library(leaflet)
 library(plotly)
+library(shinythemes)
 
 #Despesas/Gastos/Porcentagem de part. - Todos
 
@@ -48,7 +49,7 @@ labels_nat <- c(
 
 
 # Interface Gráfica
-ui <- fluidPage(
+ui <- fluidPage(theme = shinytheme("flatly"),
   navbarPage("IEPS DATA", # Nome do Aplicativo Shiny
              tabPanel("Introdução", fluid= T,
                       titlePanel("Sobre o IEPS DATA"),
@@ -255,7 +256,6 @@ server <- function(input, output) {
     
     ggplotly(c)
   })
-  
 }
 
 shinyApp(ui = ui, server = server)
