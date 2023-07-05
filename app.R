@@ -8,6 +8,7 @@ library(plotly)
 library(shinythemes)
 library(kableExtra)
 library(knitr)
+library(gganimate)
 
 #Despesas/Gastos/Porcentagem de part. - Todos
 
@@ -236,13 +237,15 @@ server <- function(input, output) {
   # Grafico Mortalidade
   output$grafico_mor <- renderPlotly({
     y_mor <- labels_mort[input$variavel_mor]
-    a = ggplot(data = df_br, aes(x = ano, y = !!sym(input$variavel_mor))) +
-      geom_line(col= "#5499C7") + geom_point(col= "#1F618D") +
-      labs(x= "Anos", y= y_mor) +
-      theme_minimal()
-    
+    a <- ggplot(data = df_br, aes(x = ano, y = !!sym(input$variavel_mor))) +
+      geom_line(col = "#5499C7") + geom_point(col = "#1F618D") +
+      labs(x = "Anos", y = y_mor) +
+      theme_minimal() 
     ggplotly(a)
   })
+  
+  
+
   
   # Gráfico Hospitalares
   output$grafico_hospital <- renderPlotly({
