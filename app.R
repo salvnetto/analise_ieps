@@ -65,10 +65,17 @@ ui <- fluidPage(theme = shinytheme("sandstone"),
                       br(),
                       fluidRow(
                         DT::dataTableOutput("descricao_variaveis"), width= 12),
-                      br()),
-                      #fluidRow(
-                      #  h2("Resultados"),
-                      #  p("Frase adicional após a tabela."))),
+                      br(),
+                      fluidRow(
+                        h2("Resultados"),
+                        p("Por meio dos dados analisados é possível perceber que
+                          o houve um grande aumento no número de leitos do sus,
+                          a partir do ano de 2019, o que se deve ao início da pandemia
+                          de coronavírus. Essa tendência também é observada para
+                          os leitos não-sus. Sobre a cobertura vacinal, percebe-se
+                          que há grande diferente entre os estados da região sudeste
+                          e norte/nordeste tendo esses apresentado grande defasagem
+                          nesse aspecto."))),
              
              
              # ABA COBERTURAS
