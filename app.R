@@ -18,6 +18,8 @@ df_uf = read_xlsx('data/uf.xlsx')
 
 # Mapa do Brasil
 mapa = read_country(year= 2020)
+mapa_muni = read_municipality(year = 2020)
+new_muni = c(levels(factor(df_muni$nome)),"Todos")
 
 # Escolhas dos Slides
 labels_hops <- c(
@@ -119,35 +121,91 @@ ui <- fluidPage(theme = shinytheme("sandstone"),
                                    mainPanel(
                                      leafletOutput("mapa_vacinal")
                                      )))),
-             navbarMenu("Despesas",
-                        tabPanel("Despesas"),
-                        tabPanel("Gastos"),
-                        tabPanel("Participacao")),
-             tabPanel("Infraestrutura",
-                      fluid = T,
-                      titlePanel("Graficos sobre dados Hospitalares"),
-                      fluidRow(
-                        br(),
-                        div(style = "display: flex; justify-content: center;", 
+             
+             
+             
+             
+             # ABA INVESTIMENTOS
+             navbarMenu("Investimentos", # Nome do menu
+                        tabPanel("Despesas Municipais",fluid= T, # Nome do item
+                                 titlePanel("Despesa Municipal Total"),
+                                 sidebarLayout(
+                                   sidebarPanel(
+                                     # Selecionar o Ano
+                                     selectInput(inputId = 'Ano10',
+                                                 label= 'Selecione o Ano:',
+                                                 choices= levels(factor(df_uf$ano)),
+                                                 selected= '2021'),
+                                     # Seleciona as Cidades
+                                     selectInput(inputId = 'Cidades',
+                                                 label= 'Selecione a cidade:',
+                                                 choices= new_muni,
+                                                 selected = "Todos"
+                                     ),
+                                     # Selecionar a variável
+                                     selectInput(inputId = "Variavel10",
+                                                 label = "Selecione a Despesa:",
+                                                 choices = c("Despesa Total com Saúde Sob Responsabilidade do Município" = 'desp_recp_saude_pc_mun',
+                                                             "Despesa em Saúde Utilizando Recursos Próprios do Município" = "desp_tot_saude_pc_mun"
+                                                 ),
+                                                 selected = "Despesa Total com Saúde Sob Responsabilidade do Município")),
+                                   mainPanel(
+                                     leafletOutput("mapa_despesas") #Nome do gráfico
+                                   ))),
+                        tabPanel(
+                          "Despesas Estaduais", # Nome do item
+                          fluid = T,
+                          titlePanel("Despesa Estadual Total"),
+                          sidebarLayout(
+                            sidebarPanel(
+                              # Selecionar o Ano
+                              selectInput(inputId = 'Ano11',
+                                          label= 'Selecione o Ano:',
+                                          choices= levels(factor(df_uf$ano)),
+                                          selected= '2021'),
+                              # Selecionar a variável
                               selectInput(
-                                inputId = 'variavel_hospital',
+                                inputId = 'Variavel11',
                                 label = 'Selecione a variável',
                                 choices = c(
-                                  'Número de Médicos' = 'n_med',
-                                  'Número de Enfermeiros' = 'n_enf',
-                                  'Número de Hospitalizações Totais' = 'n_hosp',
-                                  'Número de Leitos Não-SUS' = 'n_leito_nsus',
-                                  'Número de Leitos SUS' = 'n_leito_sus',
-                                  'Número de Leitos de UTI Não-SUS' = 'n_leitouti_nsus',
-                                  'Número de Leitos de UTI SUS' = 'n_leitouti_sus'
+                                  "Despesa Total com Saúde Sob Responsabilidade do Estado" = 'desp_tot_saude_pc_uf_def',
+                                  "Despesa em Saúde Utilizando Recursos Próprios do Estado" = "desp_recp_saude_pc_uf"
                                 )
-                              ))
+                              )
                             ),
-                            fluidRow(
-                              plotlyOutput("grafico_hospital")
+                            mainPanel(
+                              plotlyOutput("grafico_desp") #Nome do gráfico
                             )
-                          #)
+                          )
                         ),
+                        tabPanel("Infraestrutura",
+                                 fluid = T,
+                                 titlePanel("Graficos sobre dados Hospitalares"),
+                                 fluidRow(
+                                   br(),
+                                   div(style = "display: flex; justify-content: center;",
+                                     selectInput(
+                                       inputId = 'variavel_hospital',
+                                       label = 'Selecione a variável',
+                                       choices = c(
+                                         'Número de Médicos' = 'n_med',
+                                         'Número de Enfermeiros' = 'n_enf',
+                                         'Número de Hospitalizações Totais' = 'n_hosp',
+                                         'Número de Leitos Não-SUS' = 'n_leito_nsus',
+                                         'Número de Leitos SUS' = 'n_leito_sus',
+                                         'Número de Leitos de UTI Não-SUS' = 'n_leitouti_nsus',
+                                         'Número de Leitos de UTI SUS' = 'n_leitouti_sus'
+                                       )
+                                     )
+                                   )),
+                                   fluidRow(
+                                     plotlyOutput("grafico_hospital")
+                                   )
+                                 )
+                        ),
+             
+             
+             #ABA DEMOGRAFIA
              navbarMenu('Demografia',
                         tabPanel(
                           "Mortalidade",
@@ -194,7 +252,7 @@ ui <- fluidPage(theme = shinytheme("sandstone"),
                           )
                         )
                   )
-             ))s
+             ))
   
 # Funções
 server <- function(input, output) {
@@ -212,8 +270,7 @@ server <- function(input, output) {
   # Grafico Coberturas
   output$mapa_coberturas <- renderLeaflet({
     df_mapa = inner_join(mapa, df_uf, c('abbrev_state' = 'sigla_uf')) %>% 
-      filter(ano == input$Ano1,
-             municipo == input$)
+      filter(ano == input$Ano1)
 
     pal <-  colorBin("Blues", domain = df_mapa[[input$Variavel1]], bins = 5)
     leaflet(data = df_mapa) %>%
@@ -251,8 +308,6 @@ server <- function(input, output) {
   })
   
   
-
-  
   # Gráfico Hospitalares
   output$grafico_hospital <- renderPlotly({
     y_hosp = labels_hops[input$variavel_hospital]
@@ -273,6 +328,44 @@ server <- function(input, output) {
       theme_minimal()
     
     ggplotly(c)
+  })
+  
+  # Mapa Despesas 
+  output$mapa_despesas <- renderLeaflet({
+    if (input$Cidades == "Todos"){
+      df_mapa = inner_join(mapa_muni, df_muni, c('name_muni' = 'nome')) %>% 
+        filter(ano == input$Ano10)}
+    else{
+      df_mapa = inner_join(mapa_muni, df_muni, c('name_muni' = 'nome')) %>% 
+        filter(ano == input$Ano10, name_muni == input$Cidades)
+    }
+    
+    pal <-  colorBin("Blues", domain = log(df_mapa[[input$Variavel10]]), bins = 5)
+    leaflet(data = df_mapa) %>%
+      addPolygons(fillColor = ~ pal(log(df_mapa[[input$Variavel10]])), 
+                  fillOpacity = 0.9, 
+                  color = "white", 
+                  weight = 1,
+                  popup = paste("Gasto Municipal:", round(df_mapa[[input$Variavel10]], 2))) %>% 
+      addLegend("bottomright", pal= pal, values = ~log(df_mapa[[input$Variavel10]]), labFormat=labelFormat(transform = function(x)exp(x), digits = 1),title = "Despesas Total em Saúde", opacity = 1)
+  })
+  
+  # Grafico Despesas 
+  output$grafico_desp <- renderPlotly({  
+    
+    #y_gastos <- labels_gast1[input$Variavel11]
+    df_uf_gastos <- df_uf %>% 
+      select(sigla_uf,desp_tot_saude_pc_uf_def,desp_recp_saude_pc_uf,ano) %>% 
+      mutate(sigla_uf = factor(sigla_uf)) %>% 
+      filter(ano == input$Ano11)
+    
+    
+    g1 = ggplot(data = df_uf_gastos, aes(x = sigla_uf, y = !!sym(input$Variavel11))) +
+      geom_bar(stat = "identity", fill = "#1F618A" ) +
+      labs(x= "UF", y= "") +
+      theme_minimal()
+    
+    ggplotly(g1)
   })
 }
 
