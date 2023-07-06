@@ -252,7 +252,7 @@ ui <- fluidPage(theme = shinytheme("sandstone"),
                           )
                         )
                   )
-             ))
+             )))
   
 # Funções
 server <- function(input, output) {
