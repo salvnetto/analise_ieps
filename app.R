@@ -65,7 +65,7 @@ ui <- fluidPage(theme = shinytheme("sandstone"),
                       br(),
                       fluidRow(
                         DT::dataTableOutput("descricao_variaveis"), width= 12),
-                      br(),
+                      br()),
                       #fluidRow(
                       #  h2("Resultados"),
                       #  p("Frase adicional após a tabela."))),
@@ -252,7 +252,7 @@ ui <- fluidPage(theme = shinytheme("sandstone"),
                           )
                         )
                   )
-             )))
+             ))
   
 # Funções
 server <- function(input, output) {
