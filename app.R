@@ -6,10 +6,7 @@ library(geobr)
 library(leaflet)
 library(plotly)
 library(shinythemes)
-library(kableExtra)
-library(knitr)
-
-#Despesas/Gastos/Porcentagem de part. - Todos
+library(DT)
 
 
 # Datasets
@@ -51,21 +48,31 @@ labels_nat <- c(
 
 
 # Interface Gráfica
-ui <- fluidPage(theme = shinytheme("flatly"),
+ui <- fluidPage(theme = shinytheme("sandstone"),
   navbarPage("IEPS DATA", # Nome do Aplicativo Shiny
+             
+             #ABA INTRODUCAO
              tabPanel("Introdução", fluid= T,
                       titlePanel("Sobre o IEPS DATA"),
-                      mainPanel(
-                        width = "100%",
-                        div(
-                          style = "text-align: justify;",
-                          p("O IEPS Data é uma iniciativa do Instituto de Estudos para Políticas de Saúde (IEPS), uma organização sem fins lucrativos, independente e apartidária, cujo único objetivo é contribuir para o aprimoramento das políticas públicas do setor de saúde no Brasil. O IEPS defende a ideia de que toda a população brasileira deva ter acesso à saúde de qualidade e que o uso de recursos e a regulação do sistema de saúde sejam os mais efetivos possíveis. Acreditamos que a melhor maneira de alcançar o nosso propósito é através de políticas públicas baseadas em evidências, desenhadas, implementadas e monitoradas de maneira transparente.")
-                          ),
-                        tableOutput("descricao_variaveis"),
+                      br(),
+                      fluidRow(
+                        column(tags$img(src="https://storage.googleapis.com/basedosdados-website-images/organization/6eb4d140-b6c0-4ada-ab2a-04fdbc791f00.png?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=storage-django%40basedosdados-dev.iam.gserviceaccount.com%2F20230706%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20230706T161534Z&X-Goog-Expires=604800&X-Goog-SignedHeaders=host&X-Goog-Signature=95b8a6a27bb4a50516dc0a85eb4c9e52f89af71039e1ac26f6c46c2a586ac148827854aa786b386a853103148673c10765b04aea8eea9f5e37ecb9c2bdcac1c14d5cf828c9b43e274b0e758e14b179aa94e53ad55dbc9f3379d36c2038d07d6fcf63e73501995072d959b602afa08c787efc47247ac2285711aa6aa577aad890d736ed53d755598dd4de1118cdf579222b41cf400890afac6bca3fba1f6c24d94bc592f0323a05f049ac1b4a3cf19364f64c1194efb2fbf32b5b0d5de7dd8e7a248f949ec9135786b353c1df853a7c34c7f1d56d2304404a26371ec29500bd58fdd116cd88f4282cd202275acece044ee458ffffabe331c4353b29d1154c0f92",width="206px",height="53px"),width=2),
+                        column(
+                          p("O IEPS Data é uma iniciativa do Instituto de Estudos para Políticas de Saúde (IEPS), uma organização sem fins lucrativos, independente e apartidária, cujo único objetivo é contribuir para o aprimoramento das políticas públicas do setor de saúde no Brasil. O IEPS defende a ideia de que toda a população brasileira deva ter acesso à saúde de qualidade e que o uso de recursos e a regulação do sistema de saúde sejam os mais efetivos possíveis. Acreditamos que a melhor maneira de alcançar o nosso propósito é através de políticas públicas baseadas em evidências, desenhadas, implementadas e monitoradas de maneira transparente."),
+                          width = 10, style= "text-align:justify")),
+                      br(),
+                      fluidRow(
+                        DT::dataTableOutput("descricao_variaveis"), width= 12),
+                      br(),
+                      fluidRow(
                         h2("Resultados"),
                         p("Frase adicional após a tabela."))),
-             navbarMenu("Coberturas", # Nome do menu
-                        tabPanel("Assistêncial", fluid= T, # Nome do item
+             
+             
+             # ABA COBERTURAS
+             navbarMenu("Coberturas",
+                        #ITEM ASSISTENCIAL
+                        tabPanel("Assistêncial", fluid= T,
                                  titlePanel("Porcentagem de Coberturas Assistênciais por Estados"),
                                  sidebarLayout(
                                    sidebarPanel(
@@ -85,6 +92,8 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                                    mainPanel(
                                      leafletOutput("mapa_coberturas") #Nome do gráfico
                                      ))),
+                        
+                        #ITEM VACINAL
                         tabPanel("Vacinal", fluid= T,
                                  titlePanel("Porcentagem de Coberturas Vacinais por Estados"),
                                  sidebarLayout(
@@ -117,8 +126,9 @@ ui <- fluidPage(theme = shinytheme("flatly"),
              tabPanel("Infraestrutura",
                       fluid = T,
                       titlePanel("Graficos sobre dados Hospitalares"),
-                      sidebarLayout(
-                            sidebarPanel(
+                      fluidRow(
+                        br(),
+                        div(style = "display: flex; justify-content: center;", 
                               selectInput(
                                 inputId = 'variavel_hospital',
                                 label = 'Selecione a variável',
@@ -131,20 +141,21 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                                   'Número de Leitos de UTI Não-SUS' = 'n_leitouti_nsus',
                                   'Número de Leitos de UTI SUS' = 'n_leitouti_sus'
                                 )
-                              )
+                              ))
                             ),
-                            mainPanel(
+                            fluidRow(
                               plotlyOutput("grafico_hospital")
                             )
-                          )
+                          #)
                         ),
              navbarMenu('Demografia',
                         tabPanel(
                           "Mortalidade",
                           fluid = T,
                           titlePanel("Graficos sobre mortalidade"),
-                          sidebarLayout(
-                            sidebarPanel(
+                          fluidRow(
+                            br(),
+                            div(style = "display: flex; justify-content: center;",
                               selectInput(
                                 inputId = 'variavel_mor',
                                 label = 'Selecione a variável',
@@ -155,19 +166,18 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                                   'Mortalidade Bruta por Causas Evitáveis' = 'tx_mort_evit',
                                   'Mortalidade Infantil' = 'tx_mort_inf_ibge'
                                 )
-                              )
-                            ),
-                            mainPanel(
+                            ))),
+                            fluidRow(
                               plotlyOutput("grafico_mor")
                             )
-                          )
                         ),
                         tabPanel(
                           "Natalidade",
                           fluid = T,
                           titlePanel("Graficos sobre natalidade"),
-                          sidebarLayout(
-                            sidebarPanel(
+                          fluidRow(
+                              br(),
+                              div(style = "display: flex; justify-content: center;",
                               selectInput(
                                 inputId = 'variavel_nat',
                                 label = 'Selecione a variável',
@@ -178,35 +188,32 @@ ui <- fluidPage(theme = shinytheme("flatly"),
                                   'Porcentagem de Nascidos Vivos com Nenhuma Consulta Pré-Natal' = 'pct_prenatal_zero'
                                 )
                               )
-                            ),
-                            mainPanel(
-                              plotlyOutput("grafico_nat")
-                            )
+                            )),
+                          fluidRow(
+                            plotlyOutput("grafico_nat")
                           )
                         )
-             )))
+                  )
+             ))s
   
 # Funções
 server <- function(input, output) {
   # Descrição das variáveis
-  output$descricao_variaveis <- function(){
+  output$descricao_variaveis <- renderDataTable({
     descricao <- data.frame(
       "Variável" = c("ano", "cob_ab", "cob_acs", "cob_esf", "cob_priv", "cob_vac_bcg", "cob_vac_hepa", "cob_vac_hepb", "cob_vac_menin", "cob_vac_penta", "cob_vac_pneumo", "cob_vac_polio", "cob_vac_rota", "cob_vac_tvd1", "desp_recp_saude_pc_mun", "desp_recp_saude_pc_mun_def", "desp_recp_saude_pc_uf", "desp_recp_saude_pc_uf_def", "desp_tot_saude_pc_mun", "desp_tot_saude_pc_mun_def", "desp_tot_saude_pc_uf", "desp_tot_saude_pc_uf_def", "gasto_pbf_pc_def", "n_enf", "n_enf_ch", "n_hosp", "n_hosp_csap", "n_leito_nsus", "n_leito_sus", "n_leitouti_nsus", "n_leitouti_sus", "n_med", "n_med_ch", "n_obitos", "n_obitos_csap", "n_obitos_evit", "n_obitos_maldef", "num_familias_bf", "pct_desp_recp_saude_mun", "pct_desp_recp_saude_uf", "pct_mort_maldef", "pct_prenatal_1a6", "pct_prenatal_7m", "pct_prenatal_adeq", "pct_prenatal_zero", "sigla_uf", "tx_enf", "tx_enf_ch", "tx_hosp", "tx_hosp_csap", "tx_leito_nsus", "tx_leito_sus", "tx_leitouti_nsus", "tx_leitouti_sus", "tx_med", "tx_med_ch", "tx_mort", "tx_mort_aj_cens", "tx_mort_aj_oms", "tx_mort_csap", "tx_mort_csap_aj_cens", "tx_mort_csap_aj_oms", "tx_mort_evit", "tx_mort_evit_aj_cens", "tx_mort_evit_aj_oms", "tx_mort_inf_ibge"),
       "Descrição" = c("Ano", "Porcentagem de Cobertura da Atenção Básica", "Porcentagem da Cobertura de Agentes Comunitários de Saúde", "Porcentagem da Cobertura de Estratégia de Saúde da Família", "Porcentagem da Cobertura de Planos de Saúde", "Porcentagem da Cobertura Vacinal de BCG", "Porcentagem da Cobertura Vacinal de Hepatite A", "Porcentagem da Cobertura Vacinal de Hepatite B em crianças até 30 dias", "Porcentagem da Cobertura Vacinal de Meningococo C", "Porcentagem da Cobertura Vacinal de Pentavalente", "Porcentagem da Cobertura Vacinal de Pneumocócica", "Porcentagem da Cobertura Vacinal de Poliomielite", "Porcentagem da Cobertura Vacinal de Rotavírus Humano", "Porcentagem da Cobertura Vacinal de Tríplice Viral (1ª Dose)", "Despesa em Saúde Utilizando Recursos Próprios do Município (por Hab., R$)", "Despesa em Saúde Utilizando Recursos Próprios do Município (por Hab., R$ de 2019)", "Despesa em Saúde Utilizando Recursos Próprios do Estado (por Hab., R$)", "Despesa em Saúde Utilizando Recursos Próprios do Estado (por Hab., R$ de 2019)", "Despesa Total com Saúde Sob Responsabilidade do Município (por Hab., R$)", "Despesa Total com Saúde Sob Responsabilidade do Município (por Hab., R$ de 2019)", "Despesa Total com Saúde Sob Responsabilidade do Estado (por Hab., R$)", "Despesa Total com Saúde Sob Responsabilidade do Estado (por Hab., R$ de 2019)", "Gasto com o Programa Bolsa Familia (por Hab., R$ de 2021)", "Número de Enfermeiros", "Número de Enfermeiros (Padronizados por Carga Horária)", "Número de Hospitalizações Totais", "Número de Hospitalizações por Condições Sensíveis à Atenção Primária", "Número de Leitos Não-SUS", "Número de Leitos SUS", "Número de Leitos de UTI Não-SUS", "Número de Leitos de UTI SUS", "Número de Médicos", "Número de Médicos (Padronizados por Carga Horária)", "Número de Óbitos por Todas as Causas", "Número de Óbitos por Condições Sensíveis a Atenção Primária", "Número de Óbitos por Causas Evitáveis", "Número de Óbitos por Causas Mal Definidas", "Número de beneficiários do Bolsa Familia", "Porcentagem da Participação da Receita Própria Municipal Aplicada em Saúde - EC 29", "Porcentagem da Participação da Receita Própria Estadual Aplicada em Saúde - EC 29", "Mortalidade Bruta por Causas Mal Definidas (%)", "Porcentagem de Nascidos Vivos com 1 a 6 Consultas Pré-Natal", "Porcentagem de Nascidos Vivos com 7 ou Mais Consultas Pré-Natal", "Porcentagem de Nascidos Vivos com Pré-Natal Adequado", "Porcentagem de Nascidos Vivos com Nenhuma Consulta Pré-Natal", "Sigla da UF", "Enfermeiros (por 1.000 Hab.)", "Enfermeiros (Padronizados por Carga Horária, por 1.000 Hab.)", "Hospitalizações (por 100.000 Hab.)", "Hospitalizações por Condições Sensíveis à Atenção Primária (por 100.000 Hab.)", "Leitos Não-SUS (por 100.000 Hab.)", "Leitos SUS (por 100.000 Hab.)", "Leitos de UTI Não-SUS (por 100.000 Hab.)", "Leitos de UTI SUS (por 100.000 Hab.)", "Médicos (por 1.000 Hab.)", "Médicos (Padronizados por Carga Horária, por 1.000 Hab.)", "Mortalidade Bruta (por 100.000 Hab.)", "Mortalidade Ajustada (Censo 2010, por 100.000 Hab.)", "Mortalidade Ajustada (OMS, por 100.000 Hab.)", "Mortalidade Bruta por Condições Sensíveis a Atenção Primária (por 100.000 Hab.)", "Mortalidade Ajustada por Condições Sensíveis à Atenção Primária (Censo, por 100.000 Hab.)", "Mortalidade Ajustada por Condições Sensíveis à Atenção Primária (OMS, por 100.000 Hab.)", "Mortalidade Bruta por Causas Evitáveis (por 100.000 Hab.)", "Mortalidade Ajustada por Causas Evitáveis (Censo, por 100.000 Hab.)", "Mortalidade Ajustada por Causas Evitáveis (OMS, por 100.000 Hab.)", "Mortalidade Infantil (por 1.000 Nascidos Vivos, Média Trienal)")
     )
     
-    kbl(descricao, align = "ll") %>% 
-      kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F,
-                    position = "center", fixed_thead = T) %>% 
-      row_spec(0, bold = T, italic = T) %>% 
-      scroll_box(height = "300px")
-  }
+    DT::datatable(descricao)
+  })
   
   
   # Grafico Coberturas
   output$mapa_coberturas <- renderLeaflet({
     df_mapa = inner_join(mapa, df_uf, c('abbrev_state' = 'sigla_uf')) %>% 
-      filter(ano == input$Ano1)
+      filter(ano == input$Ano1,
+             municipo == input$)
 
     pal <-  colorBin("Blues", domain = df_mapa[[input$Variavel1]], bins = 5)
     leaflet(data = df_mapa) %>%
