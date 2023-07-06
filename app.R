@@ -8,7 +8,6 @@ library(plotly)
 library(shinythemes)
 library(kableExtra)
 library(knitr)
-library(gganimate)
 
 #Despesas/Gastos/Porcentagem de part. - Todos
 
