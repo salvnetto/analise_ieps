@@ -66,9 +66,9 @@ ui <- fluidPage(theme = shinytheme("sandstone"),
                       fluidRow(
                         DT::dataTableOutput("descricao_variaveis"), width= 12),
                       br(),
-                      fluidRow(
-                        h2("Resultados"),
-                        p("Frase adicional após a tabela."))),
+                      #fluidRow(
+                      #  h2("Resultados"),
+                      #  p("Frase adicional após a tabela."))),
              
              
              # ABA COBERTURAS
